@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
+import { API_URL } from "@/api";
 
 interface Guide {
   id: string;
@@ -34,6 +35,7 @@ type Tab = "guides" | "contacts";
 
 export default function AdminPage() {
   const { user, isAdmin, loading } = useAuth();
+  console.log("USER OBJECT:", user);
   const navigate = useNavigate();
   const { toast } = useToast();
   const [tab, setTab] = useState<Tab>("guides");
@@ -44,12 +46,8 @@ export default function AdminPage() {
   const [dataLoading, setDataLoading] = useState(true);
 
   useEffect(() => {
-    if (!loading && !user) navigate("/auth");
-    if (!loading && user && !isAdmin) {
-      toast({ title: "Access Denied", description: "Admin access required.", variant: "destructive" });
-      navigate("/");
-    }
-  }, [user, isAdmin, loading, navigate, toast]);
+  if (!loading && !user) navigate("/auth");
+}, [user, loading, navigate]);
 
   useEffect(() => {
     if (isAdmin) {
@@ -58,17 +56,23 @@ export default function AdminPage() {
   }, [isAdmin]);
 
   const fetchData = async () => {
-    setDataLoading(true);
-    const [guidesRes, contactsRes] = await Promise.all([
-      supabase.from("first_aid_guides").select("*").order("created_at", { ascending: false }),
-      supabase.from("emergency_contacts").select("*").order("created_at", { ascending: false }),
-    ]);
-    if (guidesRes.data) {
-      setGuides(guidesRes.data.map(g => ({ ...g, steps: Array.isArray(g.steps) ? g.steps as string[] : [] })));
-    }
-    if (contactsRes.data) setContacts(contactsRes.data);
-    setDataLoading(false);
-  };
+  setDataLoading(true);
+
+  try {
+    const contactsRes = await fetch(`${API_URL}/contacts`);
+    const contactsData = await contactsRes.json();
+    const guidesRes = await fetch(`${API_URL}/guides`);
+    const guidesData = await guidesRes.json();
+    setGuides(guidesData);
+
+    setContacts(contactsData);
+
+  } catch (error) {
+    console.error("Failed to fetch contacts:", error);
+  }
+
+  setDataLoading(false);
+};
 
   // Guide CRUD
   const saveGuide = async () => {
@@ -105,27 +109,44 @@ export default function AdminPage() {
 
   // Contact CRUD
   const saveContact = async () => {
-    if (!editingContact?.name || !editingContact?.service_type || !editingContact?.phone_number) {
-      toast({ title: "Missing fields", description: "Please fill in all required fields.", variant: "destructive" });
-      return;
-    }
-    const payload = {
-      name: editingContact.name,
-      service_type: editingContact.service_type,
-      phone_number: editingContact.phone_number,
-      location: editingContact.location || null,
-      is_active: editingContact.is_active !== false,
-    };
-    if (editingContact.id) {
-      await supabase.from("emergency_contacts").update(payload).eq("id", editingContact.id);
-      toast({ title: "Contact updated!" });
-    } else {
-      await supabase.from("emergency_contacts").insert(payload);
-      toast({ title: "Contact created!" });
-    }
+  if (!editingContact?.name || !editingContact?.phone_number) {
+    toast({
+      title: "Missing fields",
+      description: "Please fill in all required fields.",
+      variant: "destructive"
+    });
+    return;
+  }
+
+  try {
+    const response = await fetch(`${API_URL}/contacts`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json"
+      },
+      body: JSON.stringify({
+        name: editingContact.name,
+        phone: editingContact.phone_number,
+        relation: editingContact.service_type || "Emergency"
+      })
+    });
+
+    if (!response.ok) throw new Error("Failed to create contact");
+
+    toast({ title: "Contact created via backend!" });
+
     setEditingContact(null);
     fetchData();
-  };
+
+  } catch (error) {
+    console.error(error);
+    toast({
+      title: "Error",
+      description: "Failed to save contact.",
+      variant: "destructive"
+    });
+  }
+};
 
   const deleteContact = async (id: string) => {
     if (!confirm("Delete this contact?")) return;
@@ -134,12 +155,12 @@ export default function AdminPage() {
     fetchData();
   };
 
-  if (loading || (!isAdmin && user)) {
+  if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
         <div className="w-8 h-8 border-3 border-primary border-t-transparent rounded-full animate-spin" />
-      </div>
-    );
+     </div>
+   );
   }
 
   if (!user) return null;
