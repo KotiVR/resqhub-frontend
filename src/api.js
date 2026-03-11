@@ -1,1 +1,1 @@
-export const API_URL = "https://resqhub-vtfr.onrender.com/";
+export const API_URL = "https://resqhub-vtfr.onrender.com";
