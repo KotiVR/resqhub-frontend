@@ -1,0 +1,179 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ============================================
+   ResQHub Design System
+   Primary: Amber/Yellow #FFC107
+   Danger: Red #DC2626
+   Dark: #212529
+   Background: #F8F9FA
+   ============================================ */
+
+@layer base {
+  :root {
+    /* Base surfaces */
+    --background: 210 17% 98%;
+    --foreground: 210 11% 15%;
+
+    --card: 0 0% 100%;
+    --card-foreground: 210 11% 15%;
+
+    --popover: 0 0% 100%;
+    --popover-foreground: 210 11% 15%;
+
+    /* Brand: Amber/Yellow */
+    --primary: 45 100% 51%;
+    --primary-foreground: 210 11% 10%;
+
+    /* Secondary: Dark charcoal */
+    --secondary: 210 11% 15%;
+    --secondary-foreground: 210 17% 98%;
+
+    /* Muted */
+    --muted: 210 17% 93%;
+    --muted-foreground: 210 9% 45%;
+
+    /* Accent: Amber lighter */
+    --accent: 45 96% 89%;
+    --accent-foreground: 210 11% 15%;
+
+    /* Danger / SOS */
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+
+    --border: 214 20% 88%;
+    --input: 214 20% 88%;
+    --ring: 45 100% 51%;
+
+    --radius: 0.625rem;
+
+    /* Custom tokens */
+    --navbar-bg: 210 11% 15%;
+    --hero-gradient: linear-gradient(135deg, hsl(45 100% 51%), hsl(38 92% 50%));
+    --card-shadow: 0 4px 24px -4px hsl(210 11% 15% / 0.12);
+    --card-shadow-hover: 0 8px 32px -4px hsl(45 100% 51% / 0.25);
+    --sos-glow: 0 0 0 0 hsl(0 72% 51% / 0.7);
+    --sos-glow-end: 0 0 0 20px hsl(0 72% 51% / 0);
+
+    --sidebar-background: 0 0% 98%;
+    --sidebar-foreground: 240 5.3% 26.1%;
+    --sidebar-primary: 240 5.9% 10%;
+    --sidebar-primary-foreground: 0 0% 98%;
+    --sidebar-accent: 240 4.8% 95.9%;
+    --sidebar-accent-foreground: 240 5.9% 10%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 217.2 91.2% 59.8%;
+  }
+
+  .dark {
+    --background: 210 11% 10%;
+    --foreground: 210 17% 95%;
+    --card: 210 11% 14%;
+    --card-foreground: 210 17% 95%;
+    --popover: 210 11% 14%;
+    --popover-foreground: 210 17% 95%;
+    --primary: 45 100% 51%;
+    --primary-foreground: 210 11% 10%;
+    --secondary: 210 11% 20%;
+    --secondary-foreground: 210 17% 95%;
+    --muted: 210 11% 18%;
+    --muted-foreground: 210 9% 60%;
+    --accent: 210 11% 20%;
+    --accent-foreground: 210 17% 95%;
+    --destructive: 0 72% 51%;
+    --destructive-foreground: 0 0% 100%;
+    --border: 210 11% 22%;
+    --input: 210 11% 22%;
+    --ring: 45 100% 51%;
+    --sidebar-background: 240 5.9% 10%;
+    --sidebar-foreground: 240 4.8% 95.9%;
+    --sidebar-primary: 45 100% 51%;
+    --sidebar-primary-foreground: 210 11% 10%;
+    --sidebar-accent: 240 3.7% 15.9%;
+    --sidebar-accent-foreground: 240 4.8% 95.9%;
+    --sidebar-border: 240 3.7% 15.9%;
+    --sidebar-ring: 45 100% 51%;
+  }
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', 'Segoe UI', system-ui, sans-serif;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-bold;
+    letter-spacing: -0.02em;
+  }
+}
+
+/* ===================== LEAFLET MAP ===================== */
+.leaflet-container {
+  width: 100%;
+  height: 100%;
+  border-radius: var(--radius);
+  z-index: 1;
+}
+
+/* ===================== SOS PULSE ===================== */
+@keyframes sos-pulse {
+  0% { box-shadow: 0 0 0 0 hsl(0 72% 51% / 0.7); }
+  70% { box-shadow: 0 0 0 20px hsl(0 72% 51% / 0); }
+  100% { box-shadow: 0 0 0 0 hsl(0 72% 51% / 0); }
+}
+
+.sos-pulse {
+  animation: sos-pulse 2s infinite;
+}
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 0.5s ease-out forwards;
+}
+
+/* ===================== HERO ===================== */
+.hero-gradient {
+  background: var(--hero-gradient);
+}
+
+/* ===================== CARD HOVER ===================== */
+.card-hover {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+.card-hover:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--card-shadow-hover);
+}
+
+/* ===================== EMERGENCY BUTTON ===================== */
+.emergency-btn {
+  @apply flex flex-col items-center justify-center gap-2 rounded-xl p-5 font-bold transition-all duration-200 cursor-pointer border-2;
+  box-shadow: var(--card-shadow);
+}
+.emergency-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: var(--card-shadow-hover);
+}
+.emergency-btn:active {
+  transform: translateY(0);
+}
+
+/* ===================== SCROLLBAR ===================== */
+::-webkit-scrollbar { width: 6px; }
+::-webkit-scrollbar-track { background: hsl(var(--muted)); }
+::-webkit-scrollbar-thumb { background: hsl(var(--primary)); border-radius: 3px; }
+
+/* ===================== PRINT ===================== */
+@media print {
+  .no-print { display: none !important; }
+}
